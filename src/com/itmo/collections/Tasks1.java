@@ -23,6 +23,8 @@ public class Tasks1 {
 
         System.out.println("Genuine messages in natural order: \n" + genuineMessagesInOriginalOrder(messages));
 
+        sortByPriority(messages, MessagePriority.LOW);
+
         removeEach(generator.generate(100), MessagePriority.LOW);
         removeOther(generator.generate(100), MessagePriority.URGENT);
  }
@@ -122,5 +124,10 @@ public class Tasks1 {
         }
 
         System.out.printf("After remove other: %s, %s\n", priority, messages);
+    }
+
+    private static void sortByPriority(List<Message> messages, MessagePriority priority) {
+
+        //TODO
     }
 }

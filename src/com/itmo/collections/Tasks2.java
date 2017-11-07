@@ -1,7 +1,5 @@
 package com.itmo.collections;
 
-import com.itmo.collections.inner.Message;
-import com.itmo.collections.inner.MessagePriority;
 import com.itmo.collections.inner.User;
 
 import java.util.Collections;
@@ -17,10 +15,6 @@ import static com.itmo.collections.inner.UserGenerator.generate;
 public class Tasks2 {
     public static void main(String[] args) {
         System.out.println(generate(10));
-    }
-
-    private static void sortByPriority(List<Message> messages, MessagePriority priority) {
-
     }
 
     private static NavigableSet<User> sortedByCompanyAndName(List<User> users) {
