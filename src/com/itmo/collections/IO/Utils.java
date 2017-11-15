@@ -13,9 +13,7 @@ public class Utils {
 //        List<String> listFiles = separateOnParts(dirPath);
 //        glueFileFromParts(listFiles, dirPath);
 //        readRandomInputStream();
-//        Byte b = Byte.parseByte("000000001", 2);
-//        System.out.println("" + b);
-//        System.out.println(Integer.toBinaryString(b & 0xFF));
+        readSimmetricSawInputStream();
 
     }
 
@@ -97,7 +95,32 @@ public class Utils {
 
     public static void readRandomInputStream() throws IOException{
         byte[] bb = new byte[10];
-        RandomInputStream ris = new RandomInputStream();
+        InputStream ris = new RandomInputStream();
         ris.read(bb);
+    }
+
+    public static void readSimmetricSawInputStream() throws IOException{
+        byte[] bb = new byte[100];
+
+        HashMap<String, int[]> hm = new HashMap<String, int[]>();
+        hm.put("1",   new int[]{0, 0, 0, 0, 0, 0, 0, 1});
+        hm.put("3",   new int[]{0, 0, 0, 0, 0, 0, 1, 1});
+        hm.put("7",   new int[]{0, 0, 0, 0, 0, 1, 1, 1});
+        hm.put("15",  new int[]{0, 0, 0, 0, 1, 1, 1, 1});
+        hm.put("31",  new int[]{0, 0, 0, 1, 1, 1, 1, 1});
+        hm.put("63",  new int[]{0, 0, 1, 1, 1, 1, 1, 1});
+        hm.put("127", new int[]{0, 1, 1, 1, 1, 1, 1, 1});
+        hm.put("-1",  new int[]{1, 1, 1, 1, 1, 1, 1, 1});
+
+        InputStream ssis = new SimmetricSawInputStream();
+        ssis.read(bb);
+
+        for (int k = 0; k < 8; k++) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < bb.length; i++) {
+                sb.append(hm.get("" + bb[i])[k] == 0 ? " " : "+");
+            }
+            System.out.println(sb.toString());
+        }
     }
 }
