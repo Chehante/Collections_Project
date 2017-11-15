@@ -100,7 +100,7 @@ public class Utils {
     }
 
     public static void readSimmetricSawInputStream() throws IOException{
-        byte[] bb = new byte[100];
+        byte[] bb = new byte[1000];
 
         HashMap<String, int[]> hm = new HashMap<String, int[]>();
         hm.put("1",   new int[]{0, 0, 0, 0, 0, 0, 0, 1});
