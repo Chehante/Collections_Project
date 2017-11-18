@@ -7,7 +7,7 @@ import java.util.*;
 
 public class Utils {
 
-    public static void main(String[] args) throws IOException{
+    public static void main(String[] args) throws IOException, InterruptedException {
         //copyFile();
 //        String dirPath = "E:/Java/IO/auxil";
 //        List<String> listFiles = separateOnParts(dirPath);
@@ -99,18 +99,18 @@ public class Utils {
         ris.read(bb);
     }
 
-    public static void readSimmetricSawInputStream() throws IOException{
+    public static void readSimmetricSawInputStream() throws IOException, InterruptedException {
         byte[] bb = new byte[1000];
 
-        HashMap<String, int[]> hm = new HashMap<String, int[]>();
-        hm.put("1",   new int[]{0, 0, 0, 0, 0, 0, 0, 1});
-        hm.put("3",   new int[]{0, 0, 0, 0, 0, 0, 1, 1});
-        hm.put("7",   new int[]{0, 0, 0, 0, 0, 1, 1, 1});
-        hm.put("15",  new int[]{0, 0, 0, 0, 1, 1, 1, 1});
-        hm.put("31",  new int[]{0, 0, 0, 1, 1, 1, 1, 1});
-        hm.put("63",  new int[]{0, 0, 1, 1, 1, 1, 1, 1});
-        hm.put("127", new int[]{0, 1, 1, 1, 1, 1, 1, 1});
-        hm.put("-1",  new int[]{1, 1, 1, 1, 1, 1, 1, 1});
+        HashMap<Integer, int[]> hm = new HashMap<>();
+        hm.put(1,   new int[]{0, 0, 0, 0, 0, 0, 0, 1});
+        hm.put(3,   new int[]{0, 0, 0, 0, 0, 0, 1, 1});
+        hm.put(7,   new int[]{0, 0, 0, 0, 0, 1, 1, 1});
+        hm.put(15,  new int[]{0, 0, 0, 0, 1, 1, 1, 1});
+        hm.put(31,  new int[]{0, 0, 0, 1, 1, 1, 1, 1});
+        hm.put(63,  new int[]{0, 0, 1, 1, 1, 1, 1, 1});
+        hm.put(127, new int[]{0, 1, 1, 1, 1, 1, 1, 1});
+        hm.put(-1,  new int[]{1, 1, 1, 1, 1, 1, 1, 1});
 
         InputStream ssis = new SimmetricSawInputStream();
         ssis.read(bb);
@@ -118,9 +118,11 @@ public class Utils {
         for (int k = 0; k < 8; k++) {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < bb.length; i++) {
-                sb.append(hm.get("" + bb[i])[k] == 0 ? " " : "+");
+                sb.append(hm.get((int)bb[i])[k] == 0 ? " " : "+");
             }
             System.out.println(sb.toString());
+
+            Thread.sleep(500);
         }
     }
 }
