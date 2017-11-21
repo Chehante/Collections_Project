@@ -2,6 +2,7 @@ package com.itmo.collections.ServerClient.print;
 
 import java.io.*;
 import java.net.*;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.Scanner;
 
@@ -54,6 +55,12 @@ public class PrintClient {
 
             else if ("/userslist".equals(msg)) {
                 getUsersList();
+
+                continue;
+            }
+
+            else if ("/ping".equals(msg)) {
+                getPing();
 
                 continue;
             }
@@ -173,6 +180,39 @@ public class PrintClient {
                     Object obj = objIn.readObject();
 
                     System.out.println(obj.toString());
+
+                }
+
+                objOut.flush();
+            }
+        }
+
+    }
+
+    private void getPing() throws IOException, ClassNotFoundException{
+
+        try (Socket sock = new Socket()) {
+            sock.connect(serverAddr);
+
+            try (OutputStream out = sock.getOutputStream()) {
+
+                ObjectOutputStream objOut = new ObjectOutputStream(out);
+
+                PingComand pngCom = new PingComand();
+                long secondtime = 0;
+                pngCom.firsTime = System.currentTimeMillis();
+
+                objOut.writeObject(pngCom);
+
+                try (InputStream in = sock.getInputStream()) {
+
+                    ObjectInputStream objIn = new ObjectInputStream(in);
+
+                    Object obj = objIn.readObject();
+
+                    secondtime = System.currentTimeMillis();
+
+                    System.out.println("Ping is " + (pngCom.firsTime - secondtime) + " mlsec");
 
                 }
 

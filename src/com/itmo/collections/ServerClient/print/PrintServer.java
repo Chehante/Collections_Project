@@ -1,5 +1,7 @@
 package com.itmo.collections.ServerClient.print;
 
+import com.itmo.collections.IO.RandomInputStream;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -7,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by xmitya on 28.08.16.
@@ -61,6 +64,10 @@ public class PrintServer {
                         objOut.writeObject(new Date(System.currentTimeMillis()));
                     else if (obj instanceof UsersListCommand)
                         objOut.writeObject(users);
+                    else if (obj instanceof PingComand) {
+                        Random rndm = new Random();
+                        objOut.writeObject(rndm.nextInt());
+                    }
                 }
             }
         } catch (IOException | ClassNotFoundException | RuntimeException e) {
