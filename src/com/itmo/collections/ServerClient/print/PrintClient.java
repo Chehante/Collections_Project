@@ -52,6 +52,12 @@ public class PrintClient {
                 continue;
             }
 
+            else if ("/userslist".equals(msg)) {
+                getUsersList();
+
+                continue;
+            }
+
             buildAndSendMessage(msg);
         }
     }
@@ -126,16 +132,49 @@ public class PrintClient {
             ServerTimeCommand srvTmCom = new ServerTimeCommand();
 
             try (OutputStream out = sock.getOutputStream()) {
+
                 ObjectOutputStream objOut = new ObjectOutputStream(out);
 
                 objOut.writeObject(srvTmCom);
 
-                InputStream in = sock.getInputStream();
-                ObjectInputStream objIn = new ObjectInputStream(in);
+                try (InputStream in = sock.getInputStream()) {
 
-                Object obj = objIn.readObject();
+                    ObjectInputStream objIn = new ObjectInputStream(in);
 
-                System.out.println(obj.toString());
+                    Object obj = objIn.readObject();
+
+                    System.out.println(obj.toString());
+
+                }
+
+                objOut.flush();
+            }
+        }
+
+    }
+
+    private void getUsersList() throws IOException, ClassNotFoundException{
+
+        try (Socket sock = new Socket()) {
+            sock.connect(serverAddr);
+
+            UsersListCommand usrListCom = new UsersListCommand();
+
+            try (OutputStream out = sock.getOutputStream()) {
+
+                ObjectOutputStream objOut = new ObjectOutputStream(out);
+
+                objOut.writeObject(usrListCom);
+
+                try (InputStream in = sock.getInputStream()) {
+
+                    ObjectInputStream objIn = new ObjectInputStream(in);
+
+                    Object obj = objIn.readObject();
+
+                    System.out.println(obj.toString());
+
+                }
 
                 objOut.flush();
             }

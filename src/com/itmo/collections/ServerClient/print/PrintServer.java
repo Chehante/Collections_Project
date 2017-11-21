@@ -32,13 +32,11 @@ public class PrintServer {
 
                 try {
                     process(sock);
-                }
-                catch (ClassNotFoundException e) {
+                } catch (ClassNotFoundException e) {
                     System.err.println("Wrong message was received");
 
                     e.printStackTrace();
-                }
-                finally {
+                } finally {
                     sock.close();
                 }
             }
@@ -48,18 +46,24 @@ public class PrintServer {
     private void process(Socket sock) throws IOException, ClassNotFoundException {
         String host = sock.getInetAddress().getHostAddress();
 
-        try (ObjectInputStream objIn = new ObjectInputStream(sock.getInputStream());
-             OutputStream out = sock.getOutputStream();
-             ObjectOutputStream objOut = new ObjectOutputStream(sock.getOutputStream())) {
+        try (InputStream in = sock.getInputStream()) {
+
+            ObjectInputStream objIn = new ObjectInputStream(sock.getInputStream());
+
             Object obj = objIn.readObject();
 
             if (obj instanceof Message)
                 printMessage((Message) obj, host);
-            else if (obj instanceof ServerTimeCommand)
-                objOut.writeObject(new Date(System.currentTimeMillis()));
-
-        }
-        catch (IOException | ClassNotFoundException | RuntimeException e) {
+            else {
+                try (OutputStream out = sock.getOutputStream()) {
+                    ObjectOutputStream objOut = new ObjectOutputStream(sock.getOutputStream());
+                    if (obj instanceof ServerTimeCommand)
+                        objOut.writeObject(new Date(System.currentTimeMillis()));
+                    else if (obj instanceof UsersListCommand)
+                        objOut.writeObject(users);
+                }
+            }
+        } catch (IOException | ClassNotFoundException | RuntimeException e) {
             System.err.println("Failed process connection from: " + host);
 
             e.printStackTrace();
@@ -70,6 +74,7 @@ public class PrintServer {
 
     private void printMessage(Message msg, String senderAddr) {
         System.out.printf("%s (%s) at %s wrote: %s\n", msg.getSender(), senderAddr, format.format(new Date(msg.getTimestamp())), msg.getText());
+        users.add(msg.getSender());
     }
 
     public static void main(String[] args) throws IOException {
