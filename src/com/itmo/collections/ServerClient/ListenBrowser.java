@@ -11,16 +11,19 @@ public class ListenBrowser {
         ServerSocket ssocket = new ServerSocket(12345);
         System.out.println("Server started on " + ssocket);
 
-        Socket sock = ssocket.accept();
+        try (Socket sock = ssocket.accept()) {
 
-        try (InputStream in = sock.getInputStream()) {
-            Scanner scr = new Scanner(in);
-            while (scr.hasNext())
-                System.out.println(scr.nextLine());
+            try (InputStream in = sock.getInputStream()) {
+                Scanner scr = new Scanner(in);
+                while (scr.hasNext())
+                    System.out.println(scr.nextLine());
 
+            }
+
+            sock.close();
+        }catch (IOException io){
+            System.out.println("IO Exception");
         }
-
-        sock.close();
 
     }
 
