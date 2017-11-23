@@ -6,14 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TargetObject {
-    @Dependency
-    private Singleton singleton;
 
     @Dependency(singleton = false)
     private Singleton nonSingleton;
 
-    @Dependency(type = ArrayList.class)
-    private List list;
+    @Dependency
+    private Singleton singleton;
 
     private int i = 10;
 
@@ -43,16 +41,7 @@ public class TargetObject {
         return "TargetObject{" +
                 "singleton=" + singleton +
                 ", nonSingleton=" + nonSingleton +
-                ", list=" + (list == null ? "null" : list.getClass()) +
                 '}';
-    }
-
-    public List getList() {
-        return list;
-    }
-
-    public void setList(List list) {
-        this.list = list;
     }
 
 }
