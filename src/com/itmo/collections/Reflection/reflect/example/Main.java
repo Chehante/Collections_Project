@@ -1,7 +1,6 @@
 package com.itmo.collections.Reflection.reflect.example;
 
 import com.itmo.collections.Reflection.reflect.injector.Injector;
-import com.itmo.collections.Reflection.reflect.strings.Utils;
 
 public class Main {
     public static void main(String[] args) throws IllegalAccessException {
@@ -21,9 +20,5 @@ public class Main {
 
         System.out.println("Singleton: " + (to1.getSingleton() == to2.getSingleton())); // true
         System.out.println("NonSingleton: " + (to1.getNonSingleton() == to2.getNonSingleton())); // false
-
-        String s = Utils.toString(to1);
-
-        System.out.println(s);
     }
 }
