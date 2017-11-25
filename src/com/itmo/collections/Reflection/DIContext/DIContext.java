@@ -8,43 +8,67 @@ public class DIContext {
 
     private final Map<Class<?>, Object> instances = new HashMap<>();
 
+    private static final DIContext INSTANCE = new DIContext();
+
+    private DIContext(){}
+
+    static DIContext getInstance() {
+        return INSTANCE;
+    }
 
     public <T> T get(String className) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
 
-        Class<T> aClass = Class.forName(className);
+        Class<T> aClass = (Class<T>) Class.forName(className);
 
-        T obj = getObject(aClass);
-
-        return obj;
+        return getObject(aClass, false);
     }
 
-    public <T> T getObject(Class<T> aClass) throws IllegalAccessException, InstantiationException {
+    private <T> T getObject(Class<T> clazz, boolean singleton) {
+        Object obj;
 
-        T object = aClass.newInstance();
+        try {
+            obj = getInstance(singleton, clazz);
 
-        for (Field field : aClass.getDeclaredFields()) {
-
-            field.setAccessible(true);
-            Resource res = field.getAnnotation(Resource.class);
-            if (res != null){
-                boolean singleton = res.singleton();
-                Class<?> type = res.type();
-
-                Class<?> innerClass = type == Object.class ? res.getClass() : type;
-
-                Object innerObject = getInstance(singleton, innerClass);
-                field.set(object, innerObject);
-            }
-
+            inject(obj);
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalArgumentException(clazz.getName(), e);
         }
 
-        return (T) object;
+        return (T) obj;
+    }
+
+    private void inject(Object obj) {
+        Class<?> clazz = obj.getClass();
+
+        for (Field field : clazz.getDeclaredFields()) {
+            Resource res = field.getAnnotation(Resource.class);
+
+            if (res != null) {
+                boolean singleton = res.singleton();
+
+                Class<?> type = res.type() == Object.class ? field.getType() : res.type();
+
+                inject(obj, singleton, type, field);
+            }
+        }
+    }
+
+    private void inject(Object obj, boolean singleton, Class<?> type, Field fld) {
+        try {
+            fld.setAccessible(true);
+
+            Object dependency = getObject(type, singleton);
+
+            fld.set(obj, dependency);
+        } catch (ReflectiveOperationException e) {
+            e.printStackTrace();
+        }
     }
 
     private Object getInstance(boolean singleton, Class<?> type) throws InstantiationException, IllegalAccessException {
         Object dependency = singleton && instances.containsKey(type)
                 ? instances.get(type)
-                : getObject(type);
+                : type.newInstance();
 
         if (singleton)
             instances.putIfAbsent(type, dependency);
