@@ -1,7 +1,6 @@
 package com.itmo.multithreading.FileServer;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -37,13 +36,26 @@ public class FileServer {
         @Override
         public void run() {
 
-            try (ObjectInputStream objIn = new ObjectInputStream(socket.getInputStream())) {
+            try (InputStream in = socket.getInputStream();
+                 ObjectInputStream objIn = new ObjectInputStream(in)) {
 
                 System.out.printf("%s connected\n", socket.getInetAddress().getHostAddress());
                 while (!Thread.currentThread().isInterrupted()) {
                     FileDescriptor fldscr = (FileDescriptor) objIn.readObject();
 
-                    System.out.println(fldscr.getFileName());
+                    System.out.println("Beginning to catch file: " + fldscr.getFileName());
+
+                    byte[] buf = new byte[1024];
+
+                    int len;
+
+                    File file = new File("D:/ТРТИЛЕК/Java/Collections_Project/src/com/itmo/multithreading/FileServer/in/" + fldscr.getFileName());
+
+                    FileOutputStream outFile = new FileOutputStream(file);
+
+                    while ((len = in.read(buf)) > 0)
+                        outFile.write(buf, 0, len);
+                    System.out.println("We've received new file: " + file.getName());
                 }
 
             } catch (IOException e) {

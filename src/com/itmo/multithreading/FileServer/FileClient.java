@@ -2,9 +2,7 @@ package com.itmo.multithreading.FileServer;
 
 import com.itmo.multithreading.chat.IOUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
@@ -22,6 +20,8 @@ public class FileClient {
 
     private String name;
 
+    OutputStream out;
+
     public FileClient(SocketAddress serverAddr, Scanner scanner) {
         this.serverAddr = serverAddr;
         this.scanner = scanner;
@@ -34,9 +34,9 @@ public class FileClient {
 
         openConnection();
 
-        System.out.println("Enter file path: ");
-
         while (true) {
+            System.out.println("Enter file path or command: ");
+
             String s = scanner.nextLine();
 
             if ("/exit".equals(s)) {
@@ -87,18 +87,20 @@ public class FileClient {
 
             socket.connect(serverAddr);
 
-            objOut = new ObjectOutputStream(socket.getOutputStream());
+            out = socket.getOutputStream();
+
+            objOut = new ObjectOutputStream(out);
         }
         catch (IOException e) {
             IOUtils.closeQuietly(socket);
         }
     }
 
-    private void sendFile(String filePath) {
+    private void sendFile(String filePath) throws FileNotFoundException {
 
         File file = new File(filePath);
         if (file.exists()) {
-            FileDescriptor fldscr = new FileDescriptor(filePath, file.length(), name);
+            FileDescriptor fldscr = new FileDescriptor(file.getName(), file.length(), name);
             try {
                 objOut.writeObject(fldscr);
                 objOut.flush();
@@ -106,6 +108,22 @@ public class FileClient {
                 IOUtils.closeQuietly(socket);
                 e.printStackTrace();
             }
+
+            try(InputStream inFile = new FileInputStream(file)){
+
+                byte[] buf = new byte[1024];
+
+                int len;
+
+                while ((len = inFile.read(buf)) > 0)
+                    out.write(buf, 0, len);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            System.out.println("File not found");
+            throw new FileNotFoundException();
         }
 
     }
