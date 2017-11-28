@@ -15,7 +15,7 @@ public class TopWords {
 
         int cpuQuant = Runtime.getRuntime().availableProcessors();
 
-        List<String> lst = tw.getListOfWords("D:\\ТРТИЛЕК\\Java\\WarAndPiece.txt");
+        List<String> lst = tw.getListOfWords("src/com/itmo/multithreading/Sinchronized/WarAndPiece.txt");
 
         int size = lst.size()/cpuQuant;
         int lastsize = lst.size()/cpuQuant + lst.size()%cpuQuant;
@@ -23,7 +23,7 @@ public class TopWords {
         Queue<Thread> threads = new LinkedList<>();
 
         for (int i = 0; i < cpuQuant; i++) {
-            List<String> sublist = lst.subList(i * size, i == cpuQuant - 1 ? i * size + size - 1 : i * size + size + lastsize - 1);
+            List<String> sublist = lst.subList(i * size, i != cpuQuant - 1 ? i * size + size : lst.size());
             Thread t = tw.new TopMaker(sublist);
             threads.add(t);
             t.start();
@@ -37,11 +37,12 @@ public class TopWords {
             }
         }
 
-        List<String> ls = tw.topTen((HashMap)tw.getMainMap());
+        List<Map.Entry<String, Integer>> ls = tw.topTen((HashMap)tw.getMainMap());
 
-        for (String l : ls) {
-            System.out.println(l);
+        for (Map.Entry<String, Integer> l : ls) {
+            System.out.println(l.getKey() + " : " + l.getValue());
         }
+
 
     }
 
@@ -59,8 +60,10 @@ public class TopWords {
         public void run() {
 
             threadMap = countWords(lst);
-            for (Map.Entry<String, Integer> entrySet : threadMap.entrySet()) {
-                mainMap.merge(entrySet.getKey(), entrySet.getValue(),(integer, integer2) -> integer + integer2);
+            synchronized (TopWords.this) {
+                for (Map.Entry<String, Integer> entrySet : threadMap.entrySet()) {
+                    mainMap.merge(entrySet.getKey(), entrySet.getValue(), (integer, integer2) -> integer + integer2);
+                }
             }
 
         }
@@ -75,7 +78,7 @@ public class TopWords {
             }
         });
 
-        List topTen =  list.subList(0, 9);
+        List topTen =  list.subList(0, 10);
 
         return topTen;
     }
@@ -91,10 +94,6 @@ public class TopWords {
                 hashMap.put(s, 1);
         }
 
-        for (Map.Entry<String, Integer> entry: hashMap.entrySet()){
-            System.out.println("Word \"" + entry.getKey() + "\" occurs " + entry.getValue() + " times");
-        }
-
         return hashMap;
     }
 
@@ -102,7 +101,7 @@ public class TopWords {
 
         File text = new File(path);
 
-        List<String> lines = null;
+        List<String> lines;
         List<String> words = new ArrayList<>();
 
         try {
