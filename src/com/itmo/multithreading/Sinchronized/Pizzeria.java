@@ -41,18 +41,18 @@ public class Pizzeria {
     }
 
     public class Waiter extends Thread{
-        @Override
-        public void run() {
-            synchronized (this){
-                try {
-                    this.wait();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                System.out.println("Going to cooker");
-                synchronized ()
-            }
-        }
+//        @Override
+//        public void run() {
+//            synchronized (this){
+//                try {
+//                    this.wait();
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//                System.out.println("Going to cooker");
+//                synchronized ()
+//            }
+//        }
     }
 
     public class Cooker extends Thread{
