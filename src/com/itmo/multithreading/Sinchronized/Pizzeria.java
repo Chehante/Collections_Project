@@ -5,13 +5,16 @@ public class Pizzeria {
     Pizza pizza;
 
     public static void main(String[] args) throws InterruptedException {
-        Pizza pizza = new Pizza.Builder(15).cheese(10).makePizza();
+
         Pizzeria pizzeria = new Pizzeria();
-        Client client = pizzeria.new Client("Sam");
+        Pizza pizza = new Pizza.Builder(15).cheese(10).makePizza();
+
         Thread threadWaiter = pizzeria.new Waiter();
         threadWaiter.start();
+
         Thread threadCooker = pizzeria.new Cooker();
         threadCooker.start();
+
         synchronized (threadWaiter){
             System.out.println("Making order with waiter");
             Thread.sleep(500);
@@ -23,20 +26,6 @@ public class Pizzeria {
         }
 
 
-
-    }
-
-    public class Client{
-
-        private String name;
-
-        public Client(String name) {
-            this.name = name;
-        }
-
-        public void makeOrder(){
-            System.out.println("Clinet");
-        }
 
     }
 
