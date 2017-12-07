@@ -4,9 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 public class TopWordsPull {
 
@@ -22,19 +20,37 @@ public class TopWordsPull {
         int lastsize = lst.size()/cpuQuant + lst.size()%cpuQuant;
 
         Executor executor = Executors.newFixedThreadPool(cpuQuant);
+        List<Future> futureList = new ArrayList<>();
 
         for (int i = 0; i < cpuQuant; i++) {
             List<String> sublist = lst.subList(i * size, i != cpuQuant - 1 ? i * size + size : lst.size());
-            executor.(new TopMaker(sublist));
+            FutureTask<List> future = new FutureTask<List>(new TopMaker(sublist));
+            executor.execute(future);
         }
 
-        List<Map.Entry<String, Integer>> ls = topTen((HashMap)getMainMap());
+                for (Future future : futureList) {
+                    if (future.isDone()) {
+                        // ждем, пока future task не закончит выполнение
+                        HashMap<String, Integer> localHashMap = (HashMap<String, Integer>) (future.get());
+                    }
+                }
+
+
+                System.out.println("Ждем, пока FutureTask2 не закончит свое выполнение");
+                String s = futureTask2.get(200L, TimeUnit.MILLISECONDS);
+                if(s !=null) {
+                    System.out.println("Результат выполнения FutureTask2 = " + s);
+                }
+
+
 
         //            synchronized (TopWords.this) {
 //                for (Map.Entry<String, Integer> entrySet : threadMap.entrySet()) {
 //                    mainMap.merge(entrySet.getKey(), entrySet.getValue(), (integer, integer2) -> integer + integer2);
 //                }
 //            }
+
+        List<Map.Entry<String, Integer>> ls = topTen((HashMap)getMainMap());
 
         for (Map.Entry<String, Integer> l : ls) {
             System.out.println(l.getKey() + " : " + l.getValue());
