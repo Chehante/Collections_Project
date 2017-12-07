@@ -19,44 +19,38 @@ public class TopWordsPull {
         int size = lst.size()/cpuQuant;
         int lastsize = lst.size()/cpuQuant + lst.size()%cpuQuant;
 
-        Executor executor = Executors.newFixedThreadPool(cpuQuant);
+        ExecutorService executor = Executors.newFixedThreadPool(cpuQuant);
         List<Future> futureList = new ArrayList<>();
 
         for (int i = 0; i < cpuQuant; i++) {
             List<String> sublist = lst.subList(i * size, i != cpuQuant - 1 ? i * size + size : lst.size());
             FutureTask<List> future = new FutureTask<List>(new TopMaker(sublist));
+            futureList.add(future);
             executor.execute(future);
         }
 
-                for (Future future : futureList) {
-                    if (future.isDone()) {
-                        // ждем, пока future task не закончит выполнение
-                        HashMap<String, Integer> localHashMap = (HashMap<String, Integer>) (future.get());
-                    }
+        for (Future future : futureList) {
+            // ждем, пока future task не закончит выполнение
+            HashMap<String, Integer> localHashMap;
+            try {
+                localHashMap = (HashMap<String, Integer>) (future.get());
+                for (Map.Entry<String, Integer> entry : localHashMap.entrySet()) {
+                    mainMap.merge(entry.getKey(), entry.getValue(), (integer, integer2) -> integer + integer2);
                 }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            }
+        }
 
-
-                System.out.println("Ждем, пока FutureTask2 не закончит свое выполнение");
-                String s = futureTask2.get(200L, TimeUnit.MILLISECONDS);
-                if(s !=null) {
-                    System.out.println("Результат выполнения FutureTask2 = " + s);
-                }
-
-
-
-        //            synchronized (TopWords.this) {
-//                for (Map.Entry<String, Integer> entrySet : threadMap.entrySet()) {
-//                    mainMap.merge(entrySet.getKey(), entrySet.getValue(), (integer, integer2) -> integer + integer2);
-//                }
-//            }
+        executor.shutdownNow();
 
         List<Map.Entry<String, Integer>> ls = topTen((HashMap)getMainMap());
 
         for (Map.Entry<String, Integer> l : ls) {
             System.out.println(l.getKey() + " : " + l.getValue());
         }
-
-
     }
 
     public static class TopMaker implements Callable{
