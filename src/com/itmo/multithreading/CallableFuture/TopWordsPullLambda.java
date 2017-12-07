@@ -1,12 +1,14 @@
 package com.itmo.multithreading.CallableFuture;
 
+import sun.plugin2.jvm.CircularByteBuffer;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.*;
 
-public class TopWordsPull {
+public class TopWordsPullLambda {
 
     private static Map<String, Integer> mainMap = new HashMap<>();
 
@@ -19,14 +21,12 @@ public class TopWordsPull {
         int size = lst.size()/cpuQuant;
         int lastsize = lst.size()/cpuQuant + lst.size()%cpuQuant;
 
-        ExecutorService executor = Executors.newFixedThreadPool(cpuQuant);
+        ExecutorService executor = Executors.newFixedThreadPool(4);
         List<Future> futureList = new ArrayList<>();
 
         for (int i = 0; i < cpuQuant; i++) {
             List<String> sublist = lst.subList(i * size, i != cpuQuant - 1 ? i * size + size : lst.size());
-            FutureTask<List> future = new FutureTask<List>(new TopMaker(sublist));
-            futureList.add(future);
-            executor.execute(future);
+            futureList.add(executor.submit(() -> countWords(sublist)));
         }
 
         for (Future future : futureList) {
@@ -50,24 +50,6 @@ public class TopWordsPull {
 
         for (Map.Entry<String, Integer> l : ls) {
             System.out.println(l.getKey() + " : " + l.getValue());
-        }
-    }
-
-    public static class TopMaker implements Callable{
-
-        private Map<String, Integer> threadMap;
-
-        private List<String> lst;
-
-        public TopMaker(List<String> lst){
-            this.lst = lst;
-        }
-
-        @Override
-        public Object call() throws Exception {
-            threadMap = countWords(lst);
-
-            return  threadMap;
         }
     }
 
