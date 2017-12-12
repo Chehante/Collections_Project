@@ -28,6 +28,7 @@ public class User {
     }
 
     public void notification(Account acc, int amount){
-        System.out.println("It was " + (amount > 0 ? " added " : " minus " + amount) + " on account of " + name);
+        System.out.println("It was " + (amount > 0 ? " added " : " substracted ") + amount + " on account " + acc.getId() + " of " + name);
+        System.out.println("Account " + acc.getId() + " balance is " + acc.getBalance());
     }
 }
